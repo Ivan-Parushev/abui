@@ -1,0 +1,14 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Default Node",
+    "compilerOptions": {
+        "allowJs": true,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "declaration": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true
+    }
+}
