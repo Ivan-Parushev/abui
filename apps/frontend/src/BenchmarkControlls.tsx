@@ -4,6 +4,8 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import styles from './create-bench-form.module.css';
 
 const httpMethods = [
@@ -17,7 +19,15 @@ const httpMethods = [
     },
 ];
 
-const CreateBenchForm = () => {
+export type BenchmarkControllsProps = {
+    benchLoading: boolean;
+    onBenchStart: (httpMethod: string, targetUrl: string) => void;
+    onBenchStop: Function;
+    onBenchClear?: Function;
+};
+
+const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop, onBenchClear }: BenchmarkControllsProps) => {
+    console.log('RENDER BENCH FORM');
     const [httpMethod, setHttpMethod] = useState('GET');
     const [targetUrl, setTargetUrl] = useState('');
 
@@ -31,14 +41,12 @@ const CreateBenchForm = () => {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        fetch('http://localhost:3001/benchmark', {
-            method: 'POST',
-            body: JSON.stringify({ method: httpMethod, url: targetUrl }),
-            headers: { 'Content-Type': 'application/json' },
-        })
-            .then((res) => res.json())
-            .then((json) => console.log(json))
-            .catch((err) => console.log(err));
+        onBenchStart(httpMethod, targetUrl);
+    };
+
+    const handleBenchClear = () => {
+        setTargetUrl('');
+        onBenchClear();
     };
 
     return (
@@ -83,21 +91,48 @@ const CreateBenchForm = () => {
                 <Grid item>
                     <Button
                         className={styles.height40}
-                        variant="contained"
+                        variant="outlined"
                         size="large"
                         disableElevation
                         type="submit"
-                        disabled={!!!targetUrl}
+                        startIcon={<PlayArrowIcon />}
+                        disabled={!!!targetUrl || benchLoading}
+                        color="success"
                     >
                         Start
                     </Button>
                 </Grid>
+                <Grid item>
+                    <Button
+                        onClick={onBenchStop}
+                        color="error"
+                        startIcon={<StopIcon />}
+                        variant="outlined"
+                        className={styles.height40}
+                        size="large"
+                        disableElevation
+                        disabled={!benchLoading}
+                    >
+                        Stop
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        onClick={handleBenchClear}
+                        color="secondary"
+                        className={styles.height40}
+                        size="large"
+                        disableElevation
+                        disabled={benchLoading}
+                    >
+                        Reset
+                    </Button>
+                </Grid>
             </Grid>
-            {/* <TextField id="filled-error" label="Connections" />
-            <TextField id="filled-error-helper-text" label="Pipelining" />
-            <TextField id="standard-error" label="Duration" /> */}
         </Box>
     );
-};
+});
 
-export default CreateBenchForm;
+BenchmarkControlls.displayName = 'BenchmarkControlls';
+
+export default BenchmarkControlls;

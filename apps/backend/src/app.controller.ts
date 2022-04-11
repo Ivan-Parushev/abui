@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Res, Req } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Res, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import type { Response, Request } from 'express';
 
@@ -40,6 +40,11 @@ export class AppController {
             benchObserver.unsubscribe();
             this._clients.delete(clientId);
         });
+    }
+    @Delete('/benchmark')
+    stopBenchmark(@Res() res: Response) {
+        this.appService.stopBenchmark();
+        res.status(200).send();
     }
     @Post('/benchmark')
     createNewBenchmark(@Req() req: Request, @Res() res: Response) {
