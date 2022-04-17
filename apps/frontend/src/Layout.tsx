@@ -14,6 +14,8 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import styles from './Layout.module.css';
+import Animation from './Animation';
 
 const drawerWidth = 240;
 
@@ -31,7 +33,10 @@ export default function ResponsiveDrawer(props: Props) {
 
     const drawer = (
         <div>
-            <Toolbar />
+            <Toolbar >
+
+            <Animation />
+            </Toolbar>
             <Divider />
             <List>
                 {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
@@ -59,6 +64,7 @@ export default function ResponsiveDrawer(props: Props) {
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <AppBar
+                className={styles.Header}
                 elevation={0}
                 variant="outlined"
                 position="fixed"

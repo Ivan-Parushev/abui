@@ -1,0 +1,10 @@
+{
+    "extends": "tsconfig/nodejs.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "incremental": true,
+        "tsBuildInfoFile": ".tsbuildinfo"
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist", "src/**/*.spec.tsx"]
+}

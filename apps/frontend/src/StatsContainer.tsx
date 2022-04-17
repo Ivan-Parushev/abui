@@ -2,6 +2,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
+import { formatBytes } from './utils';
 
 const StatsCard = ({ title, stat }: { title: string; stat: number | string }) => (
     <Card variant="outlined">
@@ -25,7 +26,7 @@ export type StatContainerProps = {
     totalBytes: number;
 };
 const StatsContainer = ({ totalReq, totalBytes, total200Res, total300Res, total400Res, total500Res }: StatContainerProps) => (
-    <Grid container spacing={2} mt={2} mb={2}>
+    <Grid container columnSpacing={2} rowGap={2} mt={2} mb={2}>
         <Grid item md={2}>
             <StatsCard title="Requests" stat={totalReq} />
         </Grid>
@@ -46,17 +47,5 @@ const StatsContainer = ({ totalReq, totalBytes, total200Res, total300Res, total4
         </Grid>
     </Grid>
 );
-
-function formatBytes(bytes: number, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
 
 export default StatsContainer;

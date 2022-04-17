@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Subject, Observer, Subscription, Subscribable } from 'rxjs';
+import { Subject } from 'rxjs';
 import autocannon, { Options } from 'autocannon';
 import type { Response } from 'express';
+import { AutocannonMessageTypes } from 'messages';
 
 type Clients = {
     id: number;
@@ -28,26 +29,26 @@ export class AppService {
                 duration: 10, // default
                 // setupClient: setupClient,
             },
-            (err, result) => console.log('END'),
+            (err, result) => {},
         );
 
         this._instance.on('start', () => {
             elapsedtime = Date.now();
             this._$benchmarkEvents.next({
-                type: 'BENCH_START',
+                type: AutocannonMessageTypes.BENCH_START,
             });
         });
 
         this._instance.on('tick', () => {
             this._$benchmarkEvents.next({
-                type: 'BENCH_TICK',
+                type: AutocannonMessageTypes.BENCH_TICK,
             });
         });
 
         this._instance.on('done', (result) => {
             elapsedtime = 0;
             this._$benchmarkEvents.next({
-                type: 'BENCH_FINISH',
+                type: AutocannonMessageTypes.BENCH_FINISH,
                 payload: {
                     result,
                 },
@@ -57,12 +58,12 @@ export class AppService {
 
         this._instance.on('response', (_, httpStatusCode: number, resBytes: number, resTime: number) => {
             this._$benchmarkEvents.next({
-                type: 'BENCH_RESPONSE',
+                type: AutocannonMessageTypes.BENCH_RESPONSE,
                 payload: {
                     httpStatusCode,
                     responseSize: resBytes,
                     responseTime: Math.ceil(resTime),
-                    elapsedTime: Date.now() - elapsedtime,
+                    elapsedTime: (Date.now() - elapsedtime) / 1000,
                 },
             });
         });

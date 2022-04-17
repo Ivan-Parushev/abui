@@ -36,7 +36,7 @@ export class AppController {
         });
 
         res.on('close', () => {
-            console.log(`${clientId} Connection closed`);
+            // console.log(`${clientId} Connection closed`);
             benchObserver.unsubscribe();
             this._clients.delete(clientId);
         });

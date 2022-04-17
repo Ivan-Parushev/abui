@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
-import styles from './create-bench-form.module.css';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 const httpMethods = [
     {
@@ -22,7 +22,7 @@ const httpMethods = [
 export type BenchmarkControllsProps = {
     benchLoading: boolean;
     onBenchStart: (httpMethod: string, targetUrl: string) => void;
-    onBenchStop: Function;
+    onBenchStop?: Function;
     onBenchClear?: Function;
 };
 
@@ -44,6 +44,10 @@ const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop
         onBenchStart(httpMethod, targetUrl);
     };
 
+    const handleBenchStop = () => {
+        onBenchStop();
+    };
+
     const handleBenchClear = () => {
         setTargetUrl('');
         onBenchClear();
@@ -52,18 +56,18 @@ const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop
     return (
         <Box
             component="form"
-            sx={{ paddingBottom: 1 }}
             // noValidate
             onSubmit={handleSubmit}
             autoComplete="off"
+            mt={2}
+            mb={2}
         >
             {/* <TextField id="outlined-error" label="Title" /> */}
-            <Grid container direction="row" columnSpacing={1}>
+            <Grid container direction="row" columnSpacing={1} rowGap={1}>
                 <Grid item>
                     <TextField
                         value={httpMethod}
                         onChange={handleHttpMethodChange}
-                        className={styles.height40}
                         id="outlined-error-helper-text"
                         required
                         size="small"
@@ -80,7 +84,6 @@ const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop
                     <TextField
                         value={targetUrl}
                         onChange={handleTargetUrlChange}
-                        className={styles.height40}
                         id="outlined-error-helper-text"
                         label="https://www.example.com/"
                         required
@@ -90,7 +93,6 @@ const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop
                 </Grid>
                 <Grid item>
                     <Button
-                        className={styles.height40}
                         variant="outlined"
                         size="large"
                         disableElevation
@@ -104,11 +106,10 @@ const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop
                 </Grid>
                 <Grid item>
                     <Button
-                        onClick={onBenchStop}
+                        onClick={handleBenchStop}
                         color="error"
                         startIcon={<StopIcon />}
                         variant="outlined"
-                        className={styles.height40}
                         size="large"
                         disableElevation
                         disabled={!benchLoading}
@@ -117,14 +118,7 @@ const BenchmarkControlls = React.memo(({ benchLoading, onBenchStart, onBenchStop
                     </Button>
                 </Grid>
                 <Grid item>
-                    <Button
-                        onClick={handleBenchClear}
-                        color="secondary"
-                        className={styles.height40}
-                        size="large"
-                        disableElevation
-                        disabled={benchLoading}
-                    >
+                    <Button onClick={handleBenchClear} size="large" disableElevation disabled={benchLoading} startIcon={<RestartAltIcon />}>
                         Reset
                     </Button>
                 </Grid>

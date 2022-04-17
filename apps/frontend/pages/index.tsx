@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { NextPage } from 'next';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
+
+import { AutocannonMessageTypes } from 'messages';
+import type { AutocannonMessage } from 'messages';
+
 import ResponseTimeChart from '../src/ResponseTimeChart';
 import BenchmarkControlls from '../src/BenchmarkControlls';
-import Animation from '../src/Animation';
 import StatsContainer from '../src/StatsContainer';
-import BenchmarkResultsTable from '../src/BenchmarkResultsTable';
-import { startBenchmark, stopBenchmark } from './../src/actions';
+import { BenchmarkResultTableData, BenchmarkSummaryTable, createBenchmarkSummaryFromResultData } from '../src/BenchmarkSummary';
+import { startBenchmark, stopBenchmark, listenForBenchmarkEvents } from './../src/actions';
+
+const initialState = {
+    benchResultStats: { header: null, rows: null },
+};
 
 const Home: NextPage = () => {
     const [benchIsLoading, setBenchLoading] = useState(false);
     const [benchTick, setBenchTick] = useState(false);
+    const [benchResultStats, setBenchResultStats] = useState<BenchmarkResultTableData>(initialState.benchResultStats);
     const [data, setData] = useState([]);
     const [scatterChartData, setScatterChartData] = useState([]);
     const [totalRequests, setTotalRequests] = useState(0);
@@ -33,6 +38,7 @@ const Home: NextPage = () => {
         setScatterChartData([]);
         setBenchTick(false);
         setBenchLoading(false);
+        setBenchResultStats(initialState.benchResultStats);
     }, []);
 
     const handleBenchTick = useCallback(() => {
@@ -49,11 +55,11 @@ const Home: NextPage = () => {
     }, [benchTick, handleBenchTick]);
 
     useEffect(() => {
-        const eventSource = new EventSource('http://localhost:3001/benchmark-events');
+        const eventSource = listenForBenchmarkEvents();
         eventSource.onmessage = (event) => {
-            // console.log(event.data);
-            const parsedData = JSON.parse(event.data);
-            if (parsedData.type === 'BENCH_RESPONSE') {
+            const parsedData: AutocannonMessage = JSON.parse(event.data);
+
+            if (parsedData.type === AutocannonMessageTypes.BENCH_RESPONSE) {
                 setTotalRequests((prev) => ++prev);
                 setTotalBytes((prev) => prev + parsedData.payload.responseSize);
                 const responseCode = parseInt(String(parsedData.payload.httpStatusCode)[0]);
@@ -71,14 +77,14 @@ const Home: NextPage = () => {
                 }
                 setData((prevData) => [...prevData, parsedData.payload]);
             }
-            if (parsedData.type === 'BENCH_TICK') {
+            if (parsedData.type === AutocannonMessageTypes.BENCH_TICK) {
                 setBenchTick(true);
             }
-            if (parsedData.type === 'BENCH_START') {
+            if (parsedData.type === AutocannonMessageTypes.BENCH_START) {
                 setBenchLoading(true);
             }
-            if (parsedData.type === 'BENCH_FINISH') {
-                console.log(parsedData.payload);
+            if (parsedData.type === AutocannonMessageTypes.BENCH_FINISH) {
+                setBenchResultStats(createBenchmarkSummaryFromResultData(parsedData.payload.result));
                 setBenchLoading(false);
             }
         };
@@ -88,14 +94,14 @@ const Home: NextPage = () => {
     }, []);
 
     return (
-        <Container disableGutters>
+        <>
             <BenchmarkControlls
                 benchLoading={benchIsLoading}
                 onBenchStart={startBenchmark}
                 onBenchStop={stopBenchmark}
                 onBenchClear={handleBenchReset}
             />
-            <Animation />
+
             <StatsContainer
                 totalBytes={totalBytes}
                 totalReq={totalRequests}
@@ -104,13 +110,11 @@ const Home: NextPage = () => {
                 total400Res={total400Res}
                 total500Res={total500Res}
             />
-            <Paper variant="outlined">
-                <Box sx={{ padding: 2, display: 'flex', alignItems: 'left' }}>
-                    <ResponseTimeChart data={scatterChartData} />
-                </Box>
-            </Paper>
-            <BenchmarkResultsTable />
-        </Container>
+
+            <ResponseTimeChart data={scatterChartData} />
+
+            <BenchmarkSummaryTable data={benchResultStats} loading={benchIsLoading} />
+        </>
     );
 };
 

@@ -1,5 +1,8 @@
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 export type BenchResponseEvent = {
     type: string;
@@ -8,23 +11,32 @@ export type BenchResponseEvent = {
     responseTime: number;
     elapsedTime: number;
 };
+
 export type ResponseTimeChartProps = {
     data: BenchResponseEvent[];
 };
+
 const ResponseTimeChart = React.memo(({ data }: ResponseTimeChartProps) => {
+    console.log('RENDER RESPONSE CHART');
+
+    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+
     return (
-        <ResponsiveContainer height={400}>
-            <ScatterChart>
-                <CartesianGrid />
-                <XAxis type="number" dataKey="elapsedTime" name="stature" unit="s" />
-                <YAxis type="number" dataKey="responseTime" name="Response Time" unit="ms" />
-                {/* <ZAxis type="number" range={[100]} /> */}
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                <Legend />
-                <Scatter name="RandomName" data={data} fill="#8884d8" line shape="circle" />
-                {/* <Scatter name="B school" data={data02} fill="#82ca9d" line shape="diamond" /> */}
-            </ScatterChart>
-        </ResponsiveContainer>
+        <Card variant="outlined" sx={{ padding: 2, margin: '16px 0px' }}>
+            <Typography variant="h5">Response Time Chart</Typography>
+            <CardContent>
+                <ResponsiveContainer height={400}>
+                    <ScatterChart>
+                        <CartesianGrid />
+                        <XAxis type="number" dataKey="elapsedTime" name="Elapsed Time" unit="s" />
+                        <YAxis type="number" dataKey="responseTime" name="Response Time" unit="ms" />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                        <Legend />
+                        <Scatter name="RandomName" data={data} fill={randomColor} />
+                    </ScatterChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
     );
 });
 
